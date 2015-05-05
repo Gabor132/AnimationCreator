@@ -13,7 +13,7 @@ public class CreatorWindow extends JFrame{
 		
 		setSize(width, height);
 		setResizable(false);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
 	}
 	

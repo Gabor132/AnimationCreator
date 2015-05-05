@@ -1,7 +1,5 @@
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.util.Random;
-
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,8 +19,16 @@ public class Main {
 		
 		//Create window
 		CreatorWindow window = new CreatorWindow(800,600);
+		
 		//Create drawing panel
 		Canvas drawPanel = new Canvas();
+		
+		//Setting handler for canvas
+		DrawHandler.setDrawPanel(drawPanel);
+		DrawHandler drawPanelHand = new DrawHandler();
+		drawPanel.addMouseListener(drawPanelHand);
+		drawPanel.addMouseMotionListener(drawPanelHand);
+		Canvas.setDrawPanelHand(drawPanelHand);
 		
 		
 		//Create & set sliderLayout
@@ -45,21 +51,43 @@ public class Main {
 		JButton deleteFrame = new JButton("Delete Frame");
 		
 		//Setting handlers for buttons
+		
+		
 		ButtonHandler.setDrawPanel(drawPanel);
-		ButtonHandler addImgHand = new ButtonHandler(true);
-		addImg.addMouseListener(addImgHand);
+		ButtonHandler addImgHand = new ButtonHandler(true,true);
+		addImg.addActionListener(addImgHand);
+		
+		ButtonHandler deleteImgHand = new ButtonHandler(true, false);
+		deleteImg.addActionListener(deleteImgHand);
 		
 		
 		
 		//Create sliders
-		JSlider rotationSlider = new JSlider(0,100);
-		JSlider depthSlider = new JSlider(0,1);
-		JSlider timeSlider = new JSlider(1,10);
+		JSlider rotationSlider = new JSlider(-6292,6292);
+		rotationSlider.setValue(0);
+		JSlider depthSlider = new JSlider(0,0);
+		depthSlider.setValue(0);
+		JSlider scaleSlider = new JSlider(1,1000);
+		scaleSlider.setValue(1);
+		
+		
+		//Setting handlers for sliders
+		SliderHandler rotationSliderHand = new SliderHandler(1,rotationSlider);
+		rotationSlider.addChangeListener(rotationSliderHand);
+		SliderHandler scaleSliderHand = new SliderHandler(2, scaleSlider);
+		scaleSlider.addChangeListener(scaleSliderHand);
+		SliderHandler depthSliderHand = new SliderHandler(3,depthSlider);
+		depthSlider.addChangeListener(depthSliderHand);
+
+		//Connecting DrawHandler with slidersHandlers
+		drawPanelHand.setRotationSlider(rotationSliderHand);
+		drawPanelHand.setScaleSlider(scaleSliderHand);
+		drawPanelHand.setDepthSlider(depthSliderHand);
 		
 		//Create labels
 		JLabel rotationLabel = new JLabel("Rotation");
 		JLabel depthLabel = new JLabel("Depth");
-		JLabel timeLabel = new JLabel("Time");
+		JLabel scaleLabel = new JLabel("Scale");
 		
 		//Set buttonPanel
 		buttonPanel.add(addImg);
@@ -72,8 +100,8 @@ public class Main {
 		sliderPanel.add(rotationSlider);
 		sliderPanel.add(depthLabel);
 		sliderPanel.add(depthSlider);
-		sliderPanel.add(timeLabel);
-		sliderPanel.add(timeSlider);
+		sliderPanel.add(scaleLabel);
+		sliderPanel.add(scaleSlider);
 		
 		//Set window
 		window.add(buttonPanel,BorderLayout.PAGE_START);
@@ -83,14 +111,13 @@ public class Main {
 		
 									//Program start//
 		
+		
 		drawPanel.setDrawings(0, drawings);
-		Random r = new Random();
 		while(true){
 			drawPanel.repaint();
 			try {
-				Thread.sleep(r.nextInt(100));
+				Thread.sleep(1);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

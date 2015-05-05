@@ -1,50 +1,64 @@
 import java.awt.Color;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.Random;
 
+import javax.swing.JOptionPane;
 
-public class ButtonHandler implements MouseListener{
+
+public class ButtonHandler implements ActionListener{
 	
 	private static Canvas drawPanel;
 	private boolean type;
+	private boolean add;
 	
-	public ButtonHandler(boolean t){
+	public ButtonHandler(boolean t,boolean a){
 		super();
-		this.type = t;
+		type = t;
+		add = a;
 	}
 	
 	@Override
-	public void mouseClicked(MouseEvent arg0) {
-		if(type){
+	public void actionPerformed(ActionEvent arg0) {
+		if(type && add){
 			Random r = new Random();
-			Sprite s = new Sprite(Color.getHSBColor(r.nextFloat(), r.nextFloat(), r.nextFloat()),0,0,10,10);
-			drawPanel.pushDrawing(s);
+			String imageName;
+			
+			imageName = JOptionPane.showInputDialog("Image name");
+			Sprite s;
+			try {
+				
+				s = new Sprite(Color.getHSBColor(r.nextFloat(), r.nextFloat(), r.nextFloat())
+						,drawPanel.getWidth()/2,drawPanel.getHeight()/2,Canvas.getNrDrawings(),imageName);
+				
+				drawPanel.pushDrawing(s);
+				if(Canvas.getNrDrawings()>1)
+					Canvas.getDrawPanelHand().getDepthSlider().getOwner().setMaximum(
+							Canvas.getDrawPanelHand().getDepthSlider().getOwner().getMaximum()+1);
+			} catch (IOException e1) {
+				JOptionPane.showMessageDialog(null, "Image name is invalid!");
+			}
 		}
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		else if(type && !add){
+			String imageName;
+			try{
+				imageName = JOptionPane.showInputDialog("Image name");
+				for(int i=0;i<drawPanel.getNrDrawings();i++){
+					if(imageName.equals(drawPanel.getDrawing(i).getName()))
+						drawPanel.deleteDrawing(i);
+				}
+			}catch(Exception e){
+				JOptionPane.showMessageDialog(null, "Something went wrong!");
+				e.printStackTrace();
+			}
+		}
+		else if(!type && add){
+			
+		}
+		else{
+			
+		}
 	}
 	
 	public static void setDrawPanel(Canvas d){
