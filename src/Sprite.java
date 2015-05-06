@@ -65,6 +65,7 @@ public class Sprite{
 		image = ImageIO.read(new File(path));
 	}
 	
+	
 	//update functions
 	public void update(){
 	}
