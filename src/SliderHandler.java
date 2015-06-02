@@ -8,58 +8,80 @@ import javax.swing.event.ChangeListener;
 public class SliderHandler implements ChangeListener{
 	
 	private double value,value2;
-	private JSlider owner;
-	private int type;
 	private boolean skipForDrawHandler;
+	private static JSlider[] sliders;
+	private static int nrSliders = 0;
 	
-	public SliderHandler(int t,JSlider js){
-		if(t==1)
-			value = js.getValue()/1000;
-		else if(t==2){
-			value = js.getValue();
-			value2 = js.getValue();
-		}else{
-			value = js.getValue();
-		}
-		owner = js;
-		type = t;
+	
+	
+	public SliderHandler(){
+		value = 0;
+		value2 = 0;
 		skipForDrawHandler = false;
 	}
 	
 	@Override
 	public void stateChanged(ChangeEvent change) {
-		double ownerValue = owner.getValue();
-		
+		JSlider subject = new JSlider();
 		if(!skipForDrawHandler){
-			switch(type){
-				case 1:{
-					ownerValue /= 1000;
-					if(Canvas.getSelectedOne()!=null)
-						Canvas.getSelectedOne().setRotation(Canvas.getSelectedOne().getRotation() + ownerValue-value);
-				}break;
-				case 2:{
-					if(Canvas.getSelectedOne()!=null){
-						value2 = Canvas.getSelectedOne().getHeight()/Canvas.getSelectedOne().getWidth();
-						Canvas.getSelectedOne().setScaleW(Canvas.getSelectedOne().getScaleW() + ownerValue-value);
-						Canvas.getSelectedOne().setScaleH(Canvas.getSelectedOne().getScaleH() + (ownerValue-value)*value2);
-					}
-				}break;
-				case 3:{
-					if(Canvas.getSelectedOne()!=null){
-						if(Canvas.getNrDrawings() > 1)
-							Canvas.getSelectedOne().setDepth((int)(Canvas.getSelectedOne().getDepth() + ownerValue-value));
-					}
-				}break;
+			for(int i=0;i<nrSliders;i++){
+				subject = (JSlider) change.getSource();
+				if(subject == sliders[i]){
+					i = nrSliders;
+				}
 			}
-		}
-		else
+			if(subject.getName() == "Rotation"){
+				double ownerValue = subject.getValue();
+				ownerValue /= 1000;
+				if(Canvas.getSelectedOne(0)!=null){
+					for(int i = 0;i < Canvas.getNrSelected();i++)
+						Canvas.getSelectedOne(i).setRotation(Canvas.getSelectedOne(i).getRotation() + (ownerValue-value));
+				}
+			}else if(subject.getName() == "Scale"){
+				double ownerValue = subject.getValue();
+				if(Canvas.getSelectedOne(0)!=null){
+					for(int i = 0;i < Canvas.getNrSelected();i++){
+						value2 = Canvas.getSelectedOne(i).getHeight()/Canvas.getSelectedOne(i).getWidth();
+						Canvas.getSelectedOne(i).setScaleW(Math.round(Canvas.getSelectedOne(i).getScaleW() + (ownerValue-value)));
+						Canvas.getSelectedOne(i).setScaleH(Math.round(Canvas.getSelectedOne(i).getScaleH() + (ownerValue-value)*value2));
+					}
+				}
+			}else if(subject.getName() == "Depth"){
+				double ownerValue = subject.getValue();
+				if(Canvas.getSelectedOne(0)!=null && Canvas.getNrSelected() == 1){
+					if(Canvas.getNrDrawings() > 1){
+						int actualDepth = Canvas.getSelectedOne(0).getDepth();
+						Sprite tempImg = Canvas.getSelectedOne(0);
+						Canvas.getSelectedOne(0).setDepth((int)(Canvas.getSelectedOne(0).getDepth() + ownerValue-value));
+						int wantedDepth = Canvas.getSelectedOne(0).getDepth();
+						int j;
+						if(actualDepth> wantedDepth){
+							for(j = actualDepth;j>wantedDepth;j--){
+								Canvas.setDrawing(Canvas.getDrawing(j-1), j);
+								Canvas.getDrawing(j).setDepth(j);
+							}
+							Canvas.setDrawing(tempImg, j);
+						}
+						else{
+							for(j = actualDepth;j<wantedDepth;j++){
+								Canvas.setDrawing(Canvas.getDrawing(j+1), j);
+								Canvas.getDrawing(j).setDepth(j);
+							}
+							Canvas.setDrawing(tempImg, j);
+						}
+					}
+				}
+			}
+			DrawHandler.updateLabels();
+		}else{
 			skipForDrawHandler = false;
-		value = ownerValue;
+		}
+		if(subject != null){
+			double ownerValue = subject.getValue();
+			value = ownerValue;
+		}
 	}
 	
-	public JSlider getOwner(){
-		return owner;
-	}
 	public void setValue(double newValue){
 		value = newValue;
 	}
@@ -69,5 +91,23 @@ public class SliderHandler implements ChangeListener{
 	public void skipThis(){
 		skipForDrawHandler = true;
 	}
-	
+
+	public static JSlider[] getSliders() {
+		return sliders;
+	}
+
+	public static void setSliders(JSlider[] sliders) {
+		SliderHandler.sliders = sliders;
+		nrSliders = sliders.length;
+	}
+	public static void addSlider(JSlider slider){
+		sliders[nrSliders] = slider;
+		nrSliders++;
+	}
+	public static JSlider getSliderAt(int index){
+		if(index<nrSliders){
+			return sliders[index];
+		}
+		return null;
+	}
 }

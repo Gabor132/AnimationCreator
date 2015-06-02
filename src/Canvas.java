@@ -1,7 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-
 import javax.swing.JPanel;
 
 
@@ -10,11 +9,13 @@ public class Canvas extends JPanel{
 	
 	private static Sprite[] drawings;
 	private static int nrDrawings = 0;
-	private static Sprite selectedOne;
+	private static Sprite[] selectedOne = new Sprite[100];
+	private static int nrSelected = 0;
 	private static DrawHandler drawPanelHand;
 	
 	public Canvas(){
-		setSelectedOne(null);
+		setSelectedOne(null,0);
+		setFocusable(true);
 	}
 	
 	@Override
@@ -32,13 +33,16 @@ public class Canvas extends JPanel{
 		}
 		
 	}
-	public void pushDrawing(Sprite s){
+	public static void pushDrawing(Sprite s){
 		drawings[nrDrawings] = s;
 		nrDrawings++;
 	}
-	public void setDrawings(int nrDraw,Sprite[] Drawings){
+	public static void setDrawings(int nrDraw,Sprite[] Drawings){
 		drawings = Drawings;
 		nrDrawings = nrDraw;
+	}
+	public static Sprite[] getDrawings(){
+		return drawings;
 	}
 	public static void setNrDrawings(int nrDraw){
 		nrDrawings = nrDraw;
@@ -46,16 +50,20 @@ public class Canvas extends JPanel{
 	public static int getNrDrawings(){
 		return nrDrawings;
 	}
-	public void popDrawing(){
+	public static void popDrawing(){
 		if(nrDrawings>0)
 			nrDrawings--;
 	}
-	public Sprite getDrawing(int index){
+	public static void setDrawing(Sprite s,int index){
+		if(index<nrDrawings && index>=0)
+			drawings[index] = s;
+	}
+	public static Sprite getDrawing(int index){
 		if(index<nrDrawings && index>=0)
 			return drawings[index];
 		return null;
 	}
-	public void deleteDrawing(int index){
+	public static void deleteDrawing(int index){
 		if(index < nrDrawings){
 			for(int i = index;i<nrDrawings-1;i++){
 				drawings[i] = drawings[i+1];
@@ -64,18 +72,34 @@ public class Canvas extends JPanel{
 		}
 	}
 
-	public static Sprite getSelectedOne() {
-		return selectedOne;
+	public static Sprite getSelectedOne(int index) {
+		return selectedOne[index];
 	}
 
-	public static void setSelectedOne(Sprite sO) {
-		selectedOne = sO;
+	public static void setSelectedOne(Sprite sO,int index) {
+		selectedOne[index] = sO;
 	}
 	public static void setDrawPanelHand(DrawHandler newDrawPanelHand){
 		drawPanelHand = newDrawPanelHand;
 	}
 	public static DrawHandler getDrawPanelHand(){
 		return drawPanelHand;
+	}
+
+	public static int getNrSelected() {
+		return nrSelected;
+	}
+
+	public static void setNrSelected(int nrSelected) {
+		Canvas.nrSelected = nrSelected;
+	}
+	
+	public static String[] getSelectedList(){
+		String[] data = new String[100];
+		for(int i = 0;i<nrSelected;i++){
+			data[i] = selectedOne[i].getName();
+		}
+		return data;
 	}
 	
 }

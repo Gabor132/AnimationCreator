@@ -5,7 +5,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
 
 public class Sprite{
@@ -44,10 +43,21 @@ public class Sprite{
 		scaleW = width;
 		scaleH = height;
 	}
+	public void copySprite(Sprite s){
+		image = s.image;
+		rotation = s.rotation;
+		scaleW = s.scaleW;
+		scaleH = s.scaleH;
+		x = s.x;
+		y = s.y;
+		depth = s.depth;
+		width = s.width;
+		height = s.height;
+		name = s.name;
+	}
 	public void drawSprite(Graphics g){
 		Graphics2D g2d = (Graphics2D)g;
 		g2d.setColor(Color.WHITE);
-		g2d.drawString(x+" "+y + " " + selected + " " + rotation + " " + scaleW + " & " + scaleH + " (" + depth + ")", x, y);
 		mover = new AffineTransform();
 		rotator = new AffineTransform();
 		scaler = new AffineTransform();
@@ -58,7 +68,23 @@ public class Sprite{
 		rotator.translate(-scaleW/2,-scaleH/2);
 		mover.concatenate(rotator);
 		mover.concatenate(scaler);
-		g2d.drawImage(image,mover,null);
+		if(this.getSelected()){
+			//draw selected image
+			g2d.setTransform(mover);
+			g2d.drawString(this.getName()+"is selected", 0, 0);
+			g2d.drawLine(0, 0, -1000, 0);
+			g2d.drawLine(0, 0, 0,-1000);
+			g2d.drawLine(0, 0, 1000, 0);
+			g2d.drawLine(0, 0, 0,1000);
+			g2d.drawLine(1000, (int)(scaleH/height + scaleH), -1000, (int)(scaleH/height + scaleH));
+			g2d.drawLine((int)(scaleW/width +scaleW), 1000, (int)(scaleW/width +scaleW), -1000);
+			g2d.drawImage(image,0,0,null);
+			
+		}else{
+			g2d.setTransform(mover);
+			g2d.drawImage(image,0,0,null);
+			
+		}
 	}
 	private void loadImage(String path) throws IOException{
 		path = "Images\\" + path + ".png";
