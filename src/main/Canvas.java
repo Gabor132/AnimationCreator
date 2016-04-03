@@ -1,6 +1,8 @@
+package main;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+
 import javax.swing.JPanel;
 
 
@@ -31,7 +33,26 @@ public class Canvas extends JPanel{
 			drawings[i].update();
 			drawings[i].drawSprite(g);
 		}
+		if(DrawHandler.getMouseSelection()){
+			Canvas.paintMouseSelection(g,DrawHandler.xMouseSelect, DrawHandler.yMouseSelect,
+					DrawHandler.xMouseSelect2, DrawHandler.yMouseSelect2);
+		}
 		
+	}
+	public static void paintMouseSelection(Graphics g,int a,int b,int c,int d){
+		Graphics2D g2d = (Graphics2D)g;
+		g2d.setColor(Color.WHITE);
+		g2d.drawLine(a, b, a, d);
+		g2d.drawLine(a, b, c, b);
+		g2d.drawLine(a, d, c, d);
+		g2d.drawLine(c, b, c, d);
+		
+		/*g2d.drawString("("+a+" "+b+")", a, b);
+		g2d.drawString("("+a+" "+d+")", a, d);
+		g2d.drawString("("+c+" "+b+")", c, b);
+		g2d.drawString("("+c+" "+d+")", c, d);*/
+		
+		g2d.setColor(Color.BLACK);
 	}
 	public static void pushDrawing(Sprite s){
 		drawings[nrDrawings] = s;
@@ -67,6 +88,7 @@ public class Canvas extends JPanel{
 		if(index < nrDrawings){
 			for(int i = index;i<nrDrawings-1;i++){
 				drawings[i] = drawings[i+1];
+				drawings[i].setDepth(drawings[i].getDepth()-1);
 			}
 			nrDrawings--;
 		}

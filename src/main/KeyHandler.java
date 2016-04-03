@@ -1,3 +1,4 @@
+package main;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -41,7 +42,6 @@ public class KeyHandler implements KeyListener{
 			}
 		}
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT){
-			System.out.println("SHIFT!");
 			setShiftDown(true);
 			moveValue = 1;
 		}
@@ -76,7 +76,6 @@ public class KeyHandler implements KeyListener{
 
 
 	public static void setShiftDown(boolean shiftDown) {
-		System.out.println("Shift is " + shiftDown + "!");
 		KeyHandler.shiftDown = shiftDown;
 	}
 }

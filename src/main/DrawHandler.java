@@ -1,3 +1,4 @@
+package main;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -19,8 +20,13 @@ public class DrawHandler implements MouseInputListener,MouseWheelListener{
 	private static JLabel currentFrame;
 	private static JLabel currentFrameTime;
 	private static Canvas drawPanel;
-	private int xMOUSE;
-	private int yMOUSE;
+	private static int xMOUSE;
+	private static int yMOUSE;
+	public static int xMouseSelect;
+	public static int yMouseSelect;
+	public static int xMouseSelect2;
+	public static int yMouseSelect2;
+	private static boolean mouseSelection = false;
 	private static SliderHandler rotationSliderHand;
 	private static SliderHandler scaleSliderHand;
 	private static SliderHandler depthSliderHand;
@@ -90,7 +96,10 @@ public class DrawHandler implements MouseInputListener,MouseWheelListener{
 	public void mouseDragged(MouseEvent mouse) {
 		
 		//System.out.println("Trying to drag...");
-		
+		if(mouseSelection){
+			xMouseSelect2 = mouse.getX();
+			yMouseSelect2 = mouse.getY();
+		}
 		if(Canvas.getSelectedOne(0) != null){
 			
 			//System.out.println("DRAGGING " + selectedOne.getName());
@@ -130,6 +139,8 @@ public class DrawHandler implements MouseInputListener,MouseWheelListener{
 	@Override
 	public void mousePressed(MouseEvent mouse) {
 		int i;
+		boolean foundSelect = false;
+		Sprite multipleSelectDrawing = new Sprite();
 		for(i = 0;i<Canvas.getNrDrawings();i++){
 			Sprite drawing = Canvas.getDrawing(i);
 			int xDrawing = drawing.getX();
@@ -146,14 +157,22 @@ public class DrawHandler implements MouseInputListener,MouseWheelListener{
 					}
 				}
 				if(!drawing.getSelected()){
-					drawing.setSelected(true);
-					if(KeyHandler.isShiftDown()){
+					if(KeyHandler.isShiftDown() && Canvas.getNrSelected()>=0){
+						if(foundSelect){
+							System.out.println("DESELECTED " + multipleSelectDrawing.getName());
+							multipleSelectDrawing.setSelected(false);
+							Canvas.setNrSelected(Canvas.getNrSelected()-1);
+						}else{
+							foundSelect = true;
+						}
 						System.out.println("SELECTED + " + drawing.getName());
 						Canvas.setSelectedOne(drawing,Canvas.getNrSelected());
 						Canvas.setNrSelected(Canvas.getNrSelected()+1);
-						break;
+						drawing.setSelected(true);
+						multipleSelectDrawing = drawing;
 					}
 					else{
+						drawing.setSelected(true);
 						System.out.println("SELECTED ONLY " + drawing.getName());
 						Canvas.setSelectedOne(drawing, 0);
 						Canvas.setNrSelected(1);
@@ -166,20 +185,20 @@ public class DrawHandler implements MouseInputListener,MouseWheelListener{
 				selectedScale.setText("Scale: " + drawing.getScaleW() + " " + drawing.getScaleH());
 				selectedDepth.setText("Depth: " + drawing.getDepth());
 				if(rotationSliderHand != null){
-					rotationSliderHand.skipThis();
+					SliderHandler.skipThis();
 					SliderHandler.getSliderAt(0).setValue((int) (drawing.getRotation()*1000));
 					rotationSliderHand.setValue((drawing.getRotation()));
 				}
 				if(scaleSliderHand != null){
-					scaleSliderHand.skipThis();
+					SliderHandler.skipThis();
 					SliderHandler.getSliderAt(1).setValue((int) (drawing.getScaleW()));
 					scaleSliderHand.setValue(drawing.getScaleW());
 				}
 				if(depthSliderHand != null){
-					depthSliderHand.skipThis();
+					SliderHandler.skipThis();
 					SliderHandler.getSliderAt(2).setValue(0);
 					depthSliderHand.setValue(0);
-					depthSliderHand.skipThis();
+					SliderHandler.skipThis();
 					SliderHandler.getSliderAt(2).setValue(drawing.getDepth());
 					depthSliderHand.setValue(drawing.getDepth());
 				}
@@ -198,6 +217,11 @@ public class DrawHandler implements MouseInputListener,MouseWheelListener{
 		if(Canvas.getSelectedOne(0)==null || !Canvas.getSelectedOne(0).getSelected()){
 			Canvas.setSelectedOne(null,0);
 			Canvas.setNrSelected(0);
+			xMouseSelect = mouse.getX();
+			yMouseSelect = mouse.getY();
+			xMouseSelect2 = mouse.getX();
+			yMouseSelect2 = mouse.getY();
+			mouseSelection = true;
 			if(rotationSliderHand != null){
 				SliderHandler.getSliderAt(0).setValue(0);
 				rotationSliderHand.setValue(0);
@@ -217,7 +241,26 @@ public class DrawHandler implements MouseInputListener,MouseWheelListener{
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		
+		mouseSelection = false;
+		for(int i = 0;i<Canvas.getNrDrawings();i++){
+			Sprite x = Canvas.getDrawing(i);
+			int a,b;
+			a = (int)(x.getX() + x.getScaleW())/2;
+			b = (int)(x.getY() + x.getScaleH())/2;
+			int difAC, difBD, difAX,difBY;
+			difAC = xMouseSelect - xMouseSelect2;
+			difBD = yMouseSelect - yMouseSelect2;
+			difAX = xMouseSelect - a;
+			difBY = yMouseSelect - b;
+			try{
+				if((difAC>=0 && difAX>=0 || difAC<0 && difAX<0) && (difBD>=0 && difBY>=0 || difBD<0 && difBY<0)){
+					System.out.println(difAC + " " + difBD + " " + difAX + " " + difBY);
+					if( Math.abs(difAC) >= Math.abs(difAX) && Math.abs(difBD) >= Math.abs(difBY)){
+						x.setSelected(true);
+					}
+				}
+			}catch(ArithmeticException e){}
+		}
 	}
 
 	@Override
@@ -332,7 +375,9 @@ public class DrawHandler implements MouseInputListener,MouseWheelListener{
 	public static void setCurrentFrameTime(JLabel currentFrameTime) {
 		DrawHandler.currentFrameTime = currentFrameTime;
 	}
-
+	public static boolean getMouseSelection(){
+		return mouseSelection;
+	}
 	
 	
 }

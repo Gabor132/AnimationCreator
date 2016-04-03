@@ -1,3 +1,4 @@
+package main;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -8,7 +9,7 @@ import javax.swing.event.ChangeListener;
 public class SliderHandler implements ChangeListener{
 	
 	private double value,value2;
-	private boolean skipForDrawHandler;
+	private static boolean skipForDrawHandler;
 	private static JSlider[] sliders;
 	private static int nrSliders = 0;
 	
@@ -44,18 +45,19 @@ public class SliderHandler implements ChangeListener{
 						value2 = Canvas.getSelectedOne(i).getHeight()/Canvas.getSelectedOne(i).getWidth();
 						Canvas.getSelectedOne(i).setScaleW(Math.round(Canvas.getSelectedOne(i).getScaleW() + (ownerValue-value)));
 						Canvas.getSelectedOne(i).setScaleH(Math.round(Canvas.getSelectedOne(i).getScaleH() + (ownerValue-value)*value2));
+						value = ownerValue;
 					}
 				}
 			}else if(subject.getName() == "Depth"){
-				double ownerValue = subject.getValue();
 				if(Canvas.getSelectedOne(0)!=null && Canvas.getNrSelected() == 1){
 					if(Canvas.getNrDrawings() > 1){
 						int actualDepth = Canvas.getSelectedOne(0).getDepth();
 						Sprite tempImg = Canvas.getSelectedOne(0);
-						Canvas.getSelectedOne(0).setDepth((int)(Canvas.getSelectedOne(0).getDepth() + ownerValue-value));
-						int wantedDepth = Canvas.getSelectedOne(0).getDepth();
+						int wantedDepth = sliders[2].getValue();
 						int j;
+						System.out.println(actualDepth + "-" + wantedDepth);
 						if(actualDepth> wantedDepth){
+							tempImg.setDepth(wantedDepth);
 							for(j = actualDepth;j>wantedDepth;j--){
 								Canvas.setDrawing(Canvas.getDrawing(j-1), j);
 								Canvas.getDrawing(j).setDepth(j);
@@ -63,6 +65,7 @@ public class SliderHandler implements ChangeListener{
 							Canvas.setDrawing(tempImg, j);
 						}
 						else{
+							tempImg.setDepth(wantedDepth);
 							for(j = actualDepth;j<wantedDepth;j++){
 								Canvas.setDrawing(Canvas.getDrawing(j+1), j);
 								Canvas.getDrawing(j).setDepth(j);
@@ -73,9 +76,9 @@ public class SliderHandler implements ChangeListener{
 				}
 			}
 			DrawHandler.updateLabels();
-		}else{
 			skipForDrawHandler = false;
 		}
+		skipForDrawHandler = false;
 		if(subject != null){
 			double ownerValue = subject.getValue();
 			value = ownerValue;
@@ -88,7 +91,7 @@ public class SliderHandler implements ChangeListener{
 	public void setValue2(double newValue){
 		value2 = newValue;
 	}
-	public void skipThis(){
+	public static void skipThis(){
 		skipForDrawHandler = true;
 	}
 

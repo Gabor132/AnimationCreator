@@ -1,6 +1,11 @@
+package main;
+import imageSelector.imageSelector;
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.Random;
 
@@ -9,7 +14,7 @@ import javax.swing.JOptionPane;
 
 
 public class ButtonHandler implements ActionListener{
-	
+	public static Object lock = new Object();
 	private static Canvas drawPanel;
 	private static Frame[] album;
 	private static Frame selectedFrame = null;
@@ -18,6 +23,7 @@ public class ButtonHandler implements ActionListener{
 	private static JButton[] buttonList = new JButton[9];
 	private static int nrButton = 0;
 	private static boolean play = false;
+	private static String wantedImageName = null;
 	
 	public ButtonHandler(){
 		super();
@@ -33,8 +39,10 @@ public class ButtonHandler implements ActionListener{
 		//add image
 		if(button.getSource().equals(buttonList[0])){
 			Random r = new Random();
-			String imageName;
-			imageName = JOptionPane.showInputDialog("Image name");
+			imageSelector a = new imageSelector();
+			String imageName = wantedImageName;
+			wantedImageName = null;
+			//imageName = JOptionPane.showInputDialog("Image name");
 			Sprite s;
 			try {
 				
@@ -58,15 +66,25 @@ public class ButtonHandler implements ActionListener{
 					imageName = JOptionPane.showInputDialog("Image name");
 					if(imageName!=null){
 						for(int i=0;i<Canvas.getNrDrawings();i++){
-							if(imageName.equals(Canvas.getDrawing(i).getName()))
+							if(imageName.equals(Canvas.getDrawing(i).getName())){
 								Canvas.deleteDrawing(i);
+								SliderHandler.skipThis();
+								SliderHandler.getSliderAt(2).setMaximum(SliderHandler.getSliderAt(2).getMaximum()-1);
+								SliderHandler.skipThis();
+								SliderHandler.getSliderAt(2).setValue(0);
+							}
 						}
 					}
 				}else{
 					imageName = Canvas.getSelectedOne(0).getName();
 					for(int i=0;i<Canvas.getNrDrawings();i++){
-						if(imageName.equals(Canvas.getDrawing(i).getName()))
+						if(imageName.equals(Canvas.getDrawing(i).getName())){
 							Canvas.deleteDrawing(i);
+							SliderHandler.skipThis();
+							SliderHandler.getSliderAt(2).setMaximum(SliderHandler.getSliderAt(2).getMaximum()-1);
+							SliderHandler.skipThis();
+							SliderHandler.getSliderAt(2).setValue(0);
+						}
 					}
 				}
 				if(Canvas.getNrDrawings()==0)
@@ -314,5 +332,8 @@ public class ButtonHandler implements ActionListener{
 
 	public static void setPlay(boolean play) {
 		ButtonHandler.play = play;
+	}
+	public static void setWantedImageName(String imageName){
+		wantedImageName = imageName;
 	}
 }

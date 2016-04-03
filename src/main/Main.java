@@ -1,3 +1,4 @@
+package main;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -7,16 +8,16 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 
-
 public class Main {
 	
 	
-	
 	int width,height;
+	
 	public static void main(String[] args) {
 		Sprite[] drawings = new Sprite[100];
 		Frame[] album = new Frame[1000];
 		String[] layerNames = new String[100];
+		
 		
 		//Setting up the layerNames for the frame
 		layerNames[0] = "Frame Layers";
@@ -125,6 +126,7 @@ public class Main {
 		rotationSlider.setValue(0);
 		JSlider depthSlider = new JSlider(0,0);
 		depthSlider.setValue(0);
+		depthSlider.setSnapToTicks(true);
 		JSlider scaleSlider = new JSlider(1,1000);
 		scaleSlider.setValue(1);
 		
@@ -232,6 +234,8 @@ public class Main {
 			for(int i=0;i<Canvas.getNrDrawings();i++){
 				layerNames[i+1] = Canvas.getDrawing(i).getName();
 			}
+			for(int i=Canvas.getNrDrawings();i<layerNames.length-1;i++)
+				layerNames[i+1] = "";
 			layerList.setListData(layerNames);
 			if(ButtonHandler.isPlay()){
 				pastTime = pastTime + 1000;

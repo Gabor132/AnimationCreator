@@ -1,3 +1,4 @@
+package main;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -22,8 +23,10 @@ public class Sprite{
 	private AffineTransform rotator;
 	private AffineTransform mover;
 	private AffineTransform scaler;
+	
 	public Sprite(){
 		super();
+		name = "NULL";
 		rotation = 0;
 		scaleW = 1;
 		scaleH = 1;
@@ -71,20 +74,35 @@ public class Sprite{
 		if(this.getSelected()){
 			//draw selected image
 			g2d.setTransform(mover);
-			g2d.drawString(this.getName()+"is selected", 0, 0);
+			//g2d.drawString(this.getName()+"is selected", 0, 0);
+			/*
 			g2d.drawLine(0, 0, -1000, 0);
 			g2d.drawLine(0, 0, 0,-1000);
 			g2d.drawLine(0, 0, 1000, 0);
 			g2d.drawLine(0, 0, 0,1000);
 			g2d.drawLine(1000, (int)(scaleH/height + scaleH), -1000, (int)(scaleH/height + scaleH));
 			g2d.drawLine((int)(scaleW/width +scaleW), 1000, (int)(scaleW/width +scaleW), -1000);
+			*/
+			g2d.setColor(Color.orange);
+			g2d.drawRect(0, 0, (int)scaleW, (int)scaleH);
 			g2d.drawImage(image,0,0,null);
+			g2d.fillArc((int)(scaleW/2)-5, (int)(scaleH/2)-5, 10, 10, 0, 360);
+			g2d.drawArc((int)(scaleW/2)-7, (int)(scaleH/2)-7, 14, 14, 0, 360);
+			g2d.drawLine((int)(scaleW/2), (int)(scaleH/2)-10, (int)(scaleW/2), (int)(scaleH/2)+10);
+			g2d.drawLine((int)(scaleW/2)-10, (int)(scaleH/2), (int)(scaleW/2)+10, (int)(scaleH/2));
 			
 		}else{
 			g2d.setTransform(mover);
 			g2d.drawImage(image,0,0,null);
-			
 		}
+		rotator.translate(-scaleW/2,-scaleH/2);
+		rotator.rotate(-rotation);
+		rotator.translate(scaleW/2, scaleH/2);
+		mover.translate(-x, -y);
+		scaler.scale(scaleW/width, scaleH/height);
+		mover.concatenate(rotator);
+		mover.concatenate(scaler);
+		g2d.setTransform(mover);
 	}
 	private void loadImage(String path) throws IOException{
 		path = "Images\\" + path + ".png";
