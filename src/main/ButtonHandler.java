@@ -42,7 +42,7 @@ public class ButtonHandler implements ActionListener{
 			imageSelector a = new imageSelector();
 			String imageName = wantedImageName;
 			wantedImageName = null;
-			//imageName = JOptionPane.showInputDialog("Image name");
+			imageName = JOptionPane.showInputDialog("Image name");
 			Sprite s;
 			try {
 				
